@@ -11,17 +11,18 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        input.text = "0"
+
+        button_clear_entry.setOnClickListener {
+            input.text = handleClearEntry(inputValue = input.text.toString())
+        }
 
         button_clear.setOnClickListener {
-            input.text = ""
+            input.text = "0"
             output.text = ""
         }
-
-        button_bracket_left.setOnClickListener {
-            input.text = addToInputText("(")
-        }
-        button_bracket_right.setOnClickListener {
-            input.text = addToInputText(")")
+        button_backspace.setOnClickListener {
+            input.text = removeLast(input.text.toString())
         }
         button_0.setOnClickListener {
             input.text = addToInputText("0")
@@ -53,9 +54,6 @@ class MainActivity : AppCompatActivity() {
         button_9.setOnClickListener {
             input.text = addToInputText("9")
         }
-        button_dot.setOnClickListener {
-            input.text = addToInputText(".")
-        }
         button_division.setOnClickListener {
             input.text = addToInputText("÷") // ALT + 0247
         }
@@ -74,7 +72,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun removeLast(inputValue: String): String{
+        if(inputValue.length <=1) return "0"
+        return inputValue.substring(0, inputValue.length - 1)
+    }
+    private fun handleClearEntry(inputValue: String): String{
+        val operators = "+-×÷"
+        val lastOperatorIndex = inputValue.lastIndexOfAny(operators.toCharArray())
+
+        return if (lastOperatorIndex != -1) {
+            inputValue.substring(0,lastOperatorIndex + 1)
+        } else {
+            inputValue
+        }
+    }
+
     private fun addToInputText(buttonValue: String): String {
+        if( input.text.toString().last() == '+' ||
+            input.text.toString().last() == '-' ||
+            input.text.toString().last() == '×' ||
+            input.text.toString().last() == '÷' ){
+            if(buttonValue == "+" || buttonValue == "-" || buttonValue == "×" || buttonValue == "÷"){
+                return input.text.toString()
+            }
+        }
+        if(input.text.toString() == "0") input.text = ""
         return "${input.text}$buttonValue"
     }
 
@@ -95,7 +117,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 // Show Result
                 output.text = DecimalFormat("0.######").format(result).toString()
-                output.setTextColor(ContextCompat.getColor(this, R.color.green))
             }
         } catch (e: Exception) {
             // Show Error Message
